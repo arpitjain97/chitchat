@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+   
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial;}
+      form{  padding: 3px; position: fixed; bottom: 0;width: 100%; }
+     
+      
+      form input { border: 0; padding: 10px; width: 60%; }
+      form button { width: 10%; background: rgb(130, 224, 255); padding:5px;}
+      form #auth {  padding: 3px; position: fixed; bottom: 0; width: 10%; }
+      #messages { list-style-type: none; margin: 0; padding: 0;}
+      #messages li { padding: 5px 10px; margin-bottom: 3px;margin-right: 0px;background-color: aquamarine; border-radius: 10px}
+      
+      li{list-style-type: none}
+     .chatwindow{
+       width:70rem;
+       min-height:80vh;
+       border: 2px solid black;
+     }
+     .container{
+         display:flex;
+         justify-content: space-between;
+     }
+     .onlineUsers ul button{
+         width: 20rem;
+         padding: 1rem;
+     }
+     .msgs{
+         padding: 10px;
+     }
+     .recname{
+         width: 100%;
+         padding:1.5rem;
+         
+         background-color: darkcyan;
+     }
+     
+    </style>
+  </head>
+  <body>
+      <div class="authen">
+          <form id = "auth">
+        <input type="text" id="name" placeholder="Enter Your Name">
+        <button>Set</button>
+      </form>
+      </div>
+      
+    
+    <div class="container">
+        <div class="onlineUsers">
+            <ul id ="users">
+            </ul>
+        </div>
+          <div class="chatwindow">
+              <div class = "recname"></div>
+              <div class = "msgs"><ul id="messages"></ul></div>
+            <div class="sendmessage"><form id = "chatbox" >
+                <input id="m" autocomplete="off" placeholder="Enter Message"/><button>Send</button>
+              </form></div>
+            
+          </div>
+         
+    </div>
+    
+  </body>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    $(function () {
+      var socket = io();
+      var receiver;
+      var sender;
+      
+      $('.chatwindow').hide();
+      $("ul").on("click","li",function(e){
+        $('.chatwindow').show();
+          receiver =e.target.textContent;
+          var curuser = receiver;
+          $('.recname').html('<h3>'+curuser + '</h3>')
+          socket.emit("prevchat", {sender:sender, receiver: receiver});
+        });
+        
+        $("#auth").submit(function(e){
+        e.preventDefault();
+        sender = $("#name").val();
+        socket.emit('new user',$("#name").val(), function(data){});
+        $("#name").val('');
+        $("#auth").hide();
+      });
+        
+      
+       $('#chatbox').submit(function(e) {
+         e.preventDefault(); 
+          
+         socket.emit('chat message', {msg:$('#m').val(), sender: sender, receiver: receiver});
+         //alert(sender + $('#m').val() + receiver );
+         $('#m').val('');
+         
+       });
+      
+      socket.on('online users',function(data){
+       var html ='';
+      for (var key in data){
+        if(key === sender){
+          continue;
+        }
+      html += '<li><button>'+key+'</button></li>'
+      }
+      $("#users").html(html);
+      });
+       
+      socket.on('currchat', function(Sender,receiver,data){
+        var list = document.getElementById("messages");
+        while (list.hasChildNodes()) {
+         list.removeChild(list.firstChild);
+        }
+        for(var i=0; i<data.length; i++) {
+          if ((data[i].A === Sender && data[i].B === receiver) || (data[i].B === Sender && data[i].A === receiver)){
+            if(sender === data[i].A){
+              $('#messages').append('<li style = "float: right"  >'+ data[i].msg+'</li>');
+            }
+            else{$('#messages').append('<li style = "float: left"  >' + data[i].msg+'</li>');
+        }
+        $('#messages').append('<br>');
+        $('#messages').append('<br>');
+              
+            
+          
+        }}
+      })
+     
+       socket.on('new message', function(data,Sender,Receiver){
+        // var list = document.getElementById("messages");
+        // while (list.hasChildNodes()) {
+        //  list.removeChild(list.firstChild);
+        // 
+        console.log(sender,receiver);
+        if ((sender === Sender && receiver === Receiver) || (sender === Receiver && receiver === Sender)){
+          if ((data.A === Sender && data.B === Receiver) || (data.B === Sender && data.A === Receiver)){
+            if(sender === data.A){
+              $('#messages').append('<li style = "float: right" >' +  data.msg+'</li>');
+            }else{
+              $('#messages').append('<li style = "float: left" >' + data.msg+'</li>');
+            }
+            $('#messages').append('<br>');
+            $('#messages').append('<br>');
+          
+        }
+       
+        }
+         
+      });
+    });
+  
+  </script>
+  
+</html>
