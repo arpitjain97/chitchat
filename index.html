@@ -135,11 +135,7 @@
       })
      
        socket.on('new message', function(data,Sender,Receiver){
-        // var list = document.getElementById("messages");
-        // while (list.hasChildNodes()) {
-        //  list.removeChild(list.firstChild);
-        // 
-        console.log(sender,receiver);
+        
         if ((sender === Sender && receiver === Receiver) || (sender === Receiver && receiver === Sender)){
           if ((data.A === Sender && data.B === Receiver) || (data.B === Sender && data.A === Receiver)){
             if(sender === data.A){
