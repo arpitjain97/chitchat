@@ -2,8 +2,9 @@
 <html>
   <head>
     <title>Socket.IO chat</title>
+    
    
-    <style>
+    <!-- <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial;}
       form{  padding: 3px; position: fixed; bottom: 0;width: 100%; }
@@ -39,31 +40,136 @@
          background-color: darkcyan;
      }
      
+    </style> -->
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+        body{ 
+            background-color: #350D36;
+            font: 13px Helvetica, Arial;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            
+        }
+        #auth{
+            margin-top: 10rem;
+            display: block;
+            border: 1px solid grey;
+            width:50%;
+            background-color: whitesmoke;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 3 solid grey;
+            transition: 1s ease-in-out;
+        }
+        #auth:hover{
+            transform: translateY(-10px);
+
+        }
+        #chat, .welcome{ color: white;
+        background-color:whitesmoke;
+        height: 80vh ;
+        color: black;
+        }
+        .welcome{ 
+          display:flex;
+          justify-content:center;
+          align-items:center;
+          font-size: 3rem;
+          padding: 15px;
+          flex-direction: column ;
+        }
+        .window{
+          padding:10px;
+          
+        }
+        .chatwindow{
+          border: 2px solid black;
+          border-radius: 10px;
+          padding: 10px;
+          display:flex;
+          flex-direction: column;
+          overflow-y: scroll;
+          position: relative;
+        }
+        .sendmessage{
+          width: 100%;
+          
+         
+          
+        }
+        .onlineUsers button{
+          width:100%;
+          padding:10px;
+          color: black;
+        }
+        .recname{
+          background-color:#bdb2bd;
+          padding:10px;
+          margin-bottom: 10px;
+        }
+        
+      #messages li{
+        list-style-type: none;
+        font-size: 1rem;
+        padding: 5px 10px;
+         
+         margin-right: 0px;
+         background-color: aquamarine;
+        border-radius: 10px
+
+     
     </style>
-  </head>
+</head>
   <body>
-      <div class="authen">
-          <form id = "auth">
-        <input type="text" id="name" placeholder="Enter Your Name">
-        <button>Set</button>
-      </form>
-      </div>
+      
+      <div class="container" id = "auth">
+          <div class="jumbotron">
+              <h1 >Welcome To ChitChat 😄</h1>
+          </div>
+        
+          <div class="row" >
+              <div class="col-md-3"></div>
+              <div class="col-md-6 col-sm-6 col-xs-6">
+                    <form>
+                        <div class="form-group" style="display: flex;">
+                            <input class="form-control" type="text" id="name" placeholder="Enter Your Name">
+                            <button  class="btn btn-primary" style = "margin-left: 3px;">Enter</button>
+                        </div>
+                    </form>
+              </div>
+          </div>
+        </div>
       
     
-    <div class="container">
-        <div class="onlineUsers">
-            <ul id ="users">
-            </ul>
-        </div>
-          <div class="chatwindow">
-              <div class = "recname"></div>
-              <div class = "msgs"><ul id="messages"></ul></div>
-            <div class="sendmessage"><form id = "chatbox" >
-                <input id="m" autocomplete="off" placeholder="Enter Message"/><button>Send</button>
-              </form></div>
+    <div class = "window">
+        <div class="row">
+          <div class="col-md-3 col-sm-3 col-xs-3 onlineUsers">
+                <ul id ="users">
+                </ul>
             
           </div>
-         
+          <div class="col-md-8 col-sm-8 col-xs-8">
+            <div class="welcome">
+            </div>
+            <div class="chatwindow" id = "chat">
+                <div class = "recname"></div>
+                <div class = "msgs"><ul id="messages"></ul></div>
+                
+               
+            </div>
+            <div class="sendmessage">
+                  <form id = "chatbox" >
+                  <div class="form-group" style="display: flex;">
+                    <input class="form-control" type="text" id="m" placeholder="Enter Message" />
+                    <button  class="btn btn-primary" style = "margin-left: 3px;">Send</button>
+                </div>
+            </div>
+        </div>
+        
     </div>
     
   </body>
@@ -77,8 +183,13 @@
       var sender;
       
       $('.chatwindow').hide();
-      $("ul").on("click","li",function(e){
+      $('.onlineUsers').hide();
+      $('.sendmessage').hide();
+      $('.welcome').hide();
+      $(".onlineUsers ul").on("click","li",function(e){
         $('.chatwindow').show();
+        $('.sendmessage').show();
+        $('.welcome').hide();
           receiver =e.target.textContent;
           var curuser = receiver;
           $('.recname').html('<h3>'+curuser + '</h3>')
@@ -87,10 +198,21 @@
         
         $("#auth").submit(function(e){
         e.preventDefault();
+        
         sender = $("#name").val();
+        if(sender.trim() ===''){
+            alert("Please Enter Valid name");
+            $("#name").val('');
+        }
+        else{
         socket.emit('new user',$("#name").val(), function(data){});
+        $('.welcome').show();
+        var welcome = '<p>Welcome </p>'+'<p>'+sender +'!</p>'+' Chat to Online Friends. 😍 ';
+        $('.welcome').html(welcome);
+        $('.onlineUsers').show();
         $("#name").val('');
         $("#auth").hide();
+    }
       });
         
       
@@ -126,6 +248,7 @@
             }
             else{$('#messages').append('<li style = "float: left"  >' + data[i].msg+'</li>');
         }
+        $('#messages').append('<br>');
         $('#messages').append('<br>');
         $('#messages').append('<br>');
               
