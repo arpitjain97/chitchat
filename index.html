@@ -3,46 +3,9 @@
   <head>
     <title>Socket.IO chat</title>
     
-   
-    <!-- <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial;}
-      form{  padding: 3px; position: fixed; bottom: 0;width: 100%; }
-     
-      
-      form input { border: 0; padding: 10px; width: 60%; }
-      form button { width: 10%; background: rgb(130, 224, 255); padding:5px;}
-      form #auth {  padding: 3px; position: fixed; bottom: 0; width: 10%; }
-      #messages { list-style-type: none; margin: 0; padding: 0;}
-      #messages li { padding: 5px 10px; margin-bottom: 3px;margin-right: 0px;background-color: aquamarine; border-radius: 10px}
-      
-      li{list-style-type: none}
-     .chatwindow{
-       width:70rem;
-       min-height:80vh;
-       border: 2px solid black;
-     }
-     .container{
-         display:flex;
-         justify-content: space-between;
-     }
-     .onlineUsers ul button{
-         width: 20rem;
-         padding: 1rem;
-     }
-     .msgs{
-         padding: 10px;
-     }
-     .recname{
-         width: 100%;
-         padding:1.5rem;
-         
-         background-color: darkcyan;
-     }
-     
-    </style> -->
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
         body{ 
             background-color: #350D36;
@@ -51,7 +14,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            
+            position: relative;
         }
         #auth{
             margin-top: 10rem;
@@ -70,7 +33,7 @@
 
         }
         #chat, .welcome{ color: white;
-        background-color:whitesmoke;
+          background-color:whitesmoke;
         height: 80vh ;
         color: black;
         }
@@ -81,7 +44,9 @@
           font-size: 3rem;
           padding: 15px;
           flex-direction: column ;
+          
         }
+        
         .window{
           padding:10px;
           
@@ -94,6 +59,7 @@
           flex-direction: column;
           overflow-y: scroll;
           position: relative;
+          
         }
         .sendmessage{
           width: 100%;
@@ -101,15 +67,21 @@
          
           
         }
+        .onlineUsers ul{
+          list-style-type: none;
+        }
         .onlineUsers button{
           width:100%;
-          padding:10px;
+          padding:15px;
           color: black;
+          border-radius: 10px;
         }
         .recname{
+          display:flex;
           background-color:#bdb2bd;
           padding:10px;
           margin-bottom: 10px;
+          justify-content: space-between;
         }
         
       #messages li{
@@ -121,7 +93,54 @@
          background-color: aquamarine;
         border-radius: 10px
 
+      }
+      #call{
+        background-color:#bdb2bd;
+        outline: none;
+        border-radius: 10px;
+      }
+      .alert{
+        position:absolute;
+        z-index: 99;
+        margin-left: 300px;
+        width: 300px;
+        height: 300px;
+        border-radius: 10px;
+        color:white;
+        background-color:black;
+        opacity: 0.8;
+        transition: 1.5s ease-in-out;
+      }
+      .video_req{
+        position: relative;
+
+      }
+      #connect{
+        position: absolute;
+        bottom: 10;
+        left:0;
+      }
+      
+      #cancel{
+        position: absolute;
+        bottom: 10;
+        right: 0;
+      }
+      #video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 300px);
+      grid-auto-rows: 350px;
      
+      
+    }
+    
+    video {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      margin: 3px;
+      object-fit: cover;
+    } 
     </style>
 </head>
   <body>
@@ -143,7 +162,8 @@
               </div>
           </div>
         </div>
-      
+      <div class="alert">
+      </div>
     
     <div class = "window">
         <div class="row">
@@ -153,13 +173,13 @@
             
           </div>
           <div class="col-md-8 col-sm-8 col-xs-8">
-            <div class="welcome">
-            </div>
-            <div class="chatwindow" id = "chat">
-                <div class = "recname"></div>
+            <div class="welcome"></div>
+            <div class="chatwindow" id = "chat" >
+                <div class = "recname">
+                  <div class="receivername"></div>
+                  <button id = "call" ><i class="fa fa-video-camera fa-3x" aria-hidden="true"></i></button>
+                </div>
                 <div class = "msgs"><ul id="messages"></ul></div>
-                
-               
             </div>
             <div class="sendmessage">
                   <form id = "chatbox" >
@@ -169,31 +189,45 @@
                 </div>
             </div>
         </div>
-        
+        </div>
     </div>
+    <div id="video-grid"></div>
     
   </body>
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+  
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script>
     $(function () {
-      var socket = io();
+      var socket = io('/');
       var receiver;
       var sender;
-      
+      var f=0,f1=0;
+      var peerid;
+      $('.alert').hide();
       $('.chatwindow').hide();
       $('.onlineUsers').hide();
       $('.sendmessage').hide();
       $('.welcome').hide();
+      $('#video-grid').hide();
+      const videoGrid = document.getElementById('video-grid')
+      const myPeer = new Peer(undefined, {
+        
+        secure: true, 
+        host: 'https://chitchatfriends1.herokuapp.com/', 
+        port: 443,
+  })
       $(".onlineUsers ul").on("click","li",function(e){
         $('.chatwindow').show();
         $('.sendmessage').show();
         $('.welcome').hide();
           receiver =e.target.textContent;
           var curuser = receiver;
-          $('.recname').html('<h3>'+curuser + '</h3>')
+          $('.receivername').html('<h3>'+curuser + '</h3>')
           socket.emit("prevchat", {sender:sender, receiver: receiver});
+          
         });
         
         $("#auth").submit(function(e){
@@ -215,12 +249,89 @@
     }
       });
         
-      
+      $("#call").on("click",function(e){
+            
+            socket.emit('video-request', {sender:sender,receiver:receiver});
+             
+          });
+          socket.on('answer',(data,ROOM_ID)=>{
+              if(sender === data.receiver){
+               var html = "<div class='video_req'><p> hello from " + data.sender + "</p> <button id='connect'>Connect</button><button id='cancel'>Cancel</button></div>";
+               $(".alert").html(html); 
+                $('.alert').show();
+                $("#cancel").on("click",function(e){
+                  $('.alert').hide();  
+                });
+                $("#connect").on("click",function(e){
+                 
+                 $('.alert').hide();
+                 $('.window').hide();
+                 $('#video-grid').show();
+                f1=1;
+                socket.emit('join-room', ROOM_ID, peerid)
+                
+                console.log(f1);
+               });
+              }
+              if(sender === data.sender){
+                $('.window').hide();
+                $('#video-grid').show();
+                f=1;
+                socket.emit('join-room', ROOM_ID, peerid)
+                console.log(f);
+               
+              }
+            });
+            myPeer.on('open', id => {
+              peerid= id;
+              console.log(peerid);
+            })
+            
+              function addVideoStream(video, stream) {
+              video.srcObject = stream
+              video.addEventListener('loadedmetadata', () => {
+                video.play()
+              })
+              videoGrid.append(video)
+            }
+                
+                const myVideo = document.createElement('video')
+                  myVideo.muted = true
+                  navigator.mediaDevices.getUserMedia({
+                  video: true,
+                  audio: true
+                  }).then(stream =>{
+                    addVideoStream(myVideo, stream);
+                    
+                    myPeer.on('call', call => {
+                    call.answer(stream)
+                    const video = document.createElement('video')
+                    call.on('stream', userVideoStream => {
+                    addVideoStream(video, userVideoStream)
+                    })
+                  })
+                  cstream = stream;
+                    socket.on('user-connected', userId => {
+                      connectToNewUser(userId, stream)
+                    })
+                  })
+  
+            function connectToNewUser(userId, stream) {
+              const call = myPeer.call(userId, stream)
+              const video = document.createElement('video')
+              call.on('stream', userVideoStream => {
+                addVideoStream(video, userVideoStream)
+              })
+              call.on('close', () => {
+                video.remove()
+              })
+            
+            }
        $('#chatbox').submit(function(e) {
          e.preventDefault(); 
           
          socket.emit('chat message', {msg:$('#m').val(), sender: sender, receiver: receiver});
-         //alert(sender + $('#m').val() + receiver );
+         
          $('#m').val('');
          
        });
@@ -241,7 +352,11 @@
         while (list.hasChildNodes()) {
          list.removeChild(list.firstChild);
         }
+        
         for(var i=0; i<data.length; i++) {
+          if(data[i].msg === undefined){
+            continue;
+          }
           if ((data[i].A === Sender && data[i].B === receiver) || (data[i].B === Sender && data[i].A === receiver)){
             if(sender === data[i].A){
               $('#messages').append('<li style = "float: right"  >'+ data[i].msg+'</li>');
@@ -261,13 +376,15 @@
         
         if ((sender === Sender && receiver === Receiver) || (sender === Receiver && receiver === Sender)){
           if ((data.A === Sender && data.B === Receiver) || (data.B === Sender && data.A === Receiver)){
+            
             if(sender === data.A){
               $('#messages').append('<li style = "float: right" >' +  data.msg+'</li>');
             }else{
               $('#messages').append('<li style = "float: left" >' + data.msg+'</li>');
             }
-            $('#messages').append('<br>');
-            $('#messages').append('<br>');
+             $('#messages').append('<br>');
+            $('#messages').append('<br>'); 
+            
           
         }
        
