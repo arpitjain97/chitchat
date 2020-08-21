@@ -204,7 +204,7 @@
       var socket = io('/');
       var receiver;
       var sender;
-      var f=0,f1=0;
+      
       var peerid;
       $('.alert').hide();
       $('.chatwindow').hide();
@@ -215,9 +215,8 @@
       const videoGrid = document.getElementById('video-grid')
       const myPeer = new Peer(undefined, {
         
-        secure: true, 
-        host: 'chitchatfriends1.herokuapp.com', 
-        port: 443,
+                host: 'chitchatfriends1.herokuapp.com', 
+                port: 9000,
   })
       $(".onlineUsers ul").on("click","li",function(e){
         $('.chatwindow').show();
@@ -267,18 +266,17 @@
                  $('.alert').hide();
                  $('.window').hide();
                  $('#video-grid').show();
-                f1=1;
+                
                 socket.emit('join-room', ROOM_ID, peerid)
                 
-                console.log(f1);
                });
               }
               if(sender === data.sender){
                 $('.window').hide();
                 $('#video-grid').show();
-                f=1;
+                
                 socket.emit('join-room', ROOM_ID, peerid)
-                console.log(f);
+                
                
               }
             });
@@ -287,15 +285,7 @@
               console.log(peerid);
             })
             
-              function addVideoStream(video, stream) {
-              video.srcObject = stream
-              video.addEventListener('loadedmetadata', () => {
-                video.play()
-              })
-              videoGrid.append(video)
-            }
-                
-                const myVideo = document.createElement('video')
+            const myVideo = document.createElement('video')
                   myVideo.muted = true
                   navigator.mediaDevices.getUserMedia({
                   video: true,
@@ -310,12 +300,20 @@
                     addVideoStream(video, userVideoStream)
                     })
                   })
-                  cstream = stream;
                     socket.on('user-connected', userId => {
                       connectToNewUser(userId, stream)
                     })
                   })
   
+            
+              function addVideoStream(video, stream) {
+              video.srcObject = stream
+              video.addEventListener('loadedmetadata', () => {
+                video.play()
+              })
+              videoGrid.append(video)
+            }
+                
             function connectToNewUser(userId, stream) {
               const call = myPeer.call(userId, stream)
               const video = document.createElement('video')
