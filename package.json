@@ -4,7 +4,8 @@
   "description": "Chatting with friends",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server.js ",
+    "dev": "peerjs --port 3001"
   },
   "author": "Arpit",
   "license": "ISC",
