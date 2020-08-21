@@ -4,8 +4,8 @@
   "description": "Chatting with friends",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js ",
-    "dev": "peerjs --port 443"
+    "start": "nodemon server.js "
+    
   },
   "author": "Arpit",
   "license": "ISC",
