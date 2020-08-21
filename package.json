@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js ",
-    "dev": "peerjs --port 3001"
+    "dev": "peerjs --port 443"
   },
   "author": "Arpit",
   "license": "ISC",
