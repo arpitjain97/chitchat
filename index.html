@@ -32,19 +32,17 @@
             transform: translateY(-10px);
 
         }
-        #chat, .welcome{ color: white;
-          background-color:whitesmoke;
-        height: 80vh ;
-        color: black;
-        }
         .welcome{ 
+          
+          background-color:whitesmoke;
+          height: 80vh ;
+          color: black;
           display:flex;
           justify-content:center;
           align-items:center;
           font-size: 3rem;
           padding: 15px;
           flex-direction: column ;
-          
         }
         
         .window{
@@ -52,6 +50,7 @@
           
         }
         .chatwindow{
+         
           border: 2px solid black;
           border-radius: 10px;
           padding: 10px;
@@ -59,13 +58,12 @@
           flex-direction: column;
           overflow-y: scroll;
           position: relative;
+          height: 80vh ;
+          color: black;
           
         }
         .sendmessage{
           width: 100%;
-          
-         
-          
         }
         .onlineUsers ul{
           list-style-type: none;
@@ -168,9 +166,7 @@
     <div class = "window">
         <div class="row">
           <div class="col-md-3 col-sm-3 col-xs-3 onlineUsers">
-                <ul id ="users">
-                </ul>
-            
+                <ul id ="users"></ul>  
           </div>
           <div class="col-md-8 col-sm-8 col-xs-8">
             <div class="welcome"></div>
@@ -203,9 +199,9 @@
     $(function () {
       const videoGrid = document.getElementById('video-grid')
       const myPeer = new Peer(undefined, {
-      secure: true,
+    secrure:true,
     host: 'chitchatfriends1.herokuapp.com',
-port: '443'
+port: '433'
   })
       var socket = io('/');
       var receiver;
