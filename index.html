@@ -211,11 +211,11 @@
       $('.welcome').hide();
       $('#video-grid').hide();
       const myPeer = new Peer({
-        key:'peerjs',
-    secrure:true,
-    host: 'chitchatfriends1.herokuapp.com',
-port: '433'
-  })
+        key: 'peerjs',
+        host: 'chitchatfriends1.herokuapp.com',
+        secure:true,
+        port: 443
+      })
       $(".onlineUsers ul").on("click","li",function(e){
         $('.chatwindow').show();
         $('.sendmessage').show();
