@@ -199,7 +199,7 @@
     $(function () {
       const videoGrid = document.getElementById('video-grid')
      
-      var socket = io();
+      var socket = io('/');
       var receiver;
       var sender;
       
@@ -210,12 +210,11 @@
       $('.sendmessage').hide();
       $('.welcome').hide();
       $('#video-grid').hide();
-      const myPeer = new Peer({
-        
-        host: 'chitchatfriends1.herokuapp.com',
-        secure:true,
-        port: location.port || (location.protocol === 'https:' ? 443 : 80)
-      })
+       const myPeer = new Peer( {
+    secrure:true,
+    host: 'chitchatfriends1.herokuapp.com',
+port: 433
+  })
       $(".onlineUsers ul").on("click","li",function(e){
         $('.chatwindow').show();
         $('.sendmessage').show();
