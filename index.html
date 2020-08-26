@@ -210,11 +210,11 @@
       $('.sendmessage').hide();
       $('.welcome').hide();
       $('#video-grid').hide();
-      const myPeer = new Peer(undefined,{
+      const myPeer = new Peer({
         
         host: 'chitchatfriends1.herokuapp.com',
         secure:true,
-        port: 443
+        port: location.port || (location.protocol === 'https:' ? 443 : 80)
       })
       $(".onlineUsers ul").on("click","li",function(e){
         $('.chatwindow').show();
