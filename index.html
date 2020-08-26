@@ -198,12 +198,8 @@
   <script>
     $(function () {
       const videoGrid = document.getElementById('video-grid')
-      const myPeer = new Peer(undefined, {
-    secrure:true,
-    host: 'chitchatfriends1.herokuapp.com',
-port: '433'
-  })
-      var socket = io('/');
+     
+      var socket = io('https://chitchatfriends1.herokuapp.com');
       var receiver;
       var sender;
       
@@ -214,7 +210,12 @@ port: '433'
       $('.sendmessage').hide();
       $('.welcome').hide();
       $('#video-grid').hide();
-      
+      const myPeer = new Peer({
+        key:'peerjs',
+    secrure:true,
+    host: 'chitchatfriends1.herokuapp.com',
+port: '433'
+  })
       $(".onlineUsers ul").on("click","li",function(e){
         $('.chatwindow').show();
         $('.sendmessage').show();
