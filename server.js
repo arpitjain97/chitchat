@@ -5,10 +5,17 @@ const socketio = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+var ExpressPeerServer = require("peer").ExpressPeerServer; 
 const { v4: uuidV4 } = require('uuid')
 app.get('/',(req, res) =>{
   res.sendFile(__dirname +'/index.html');
 });
+   
+var options = {
+  debug: true
+};
+let peerServer = ExpressPeerServer(server, options);
+app.use("/peerjs", peerServer);
 var users ={};
 var conversation = [];
 
