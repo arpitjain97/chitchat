@@ -203,17 +203,17 @@
       var receiver;
       var sender;
       
-      var peerid;
+      var peerid = '';
       $('.alert').hide();
       $('.chatwindow').hide();
       $('.onlineUsers').hide();
       $('.sendmessage').hide();
       $('.welcome').hide();
       $('#video-grid').hide();
-       const myPeer = new Peer({
+       const myPeer = new Peer(undefined,{
     path:'/peerjs',
-    host: 'https://chitchatfriends1.herokuapp.com',
-port: ""
+    host: '/',
+port: 443
   });
       $(".onlineUsers ul").on("click","li",function(e){
         $('.chatwindow').show();
@@ -279,7 +279,7 @@ port: ""
             });
             myPeer.on('open', id => {
               peerid= id;
-              console.log(peerid);
+              console.log('peerid',peerid);
             })
             
             const myVideo = document.createElement('video')
